@@ -12,12 +12,16 @@ pub use getopts;
 ///
 /// # Examples
 /// ```
-/// use getopts_macro::getopts_options;
+/// use getopts_macro::{
+///     getopts_options,
+///     getopts::ParsingStyle,
+/// };
 ///
 /// let _options = getopts_options! {
 ///     -f --file=FILE              "input from file";
 ///     -p --parse-config*=CONFIG   "parse config";
 ///     -h --help*                  "help messages";
+///     .parsing_style(ParsingStyle::StopAtFirstFree)
 /// };
 /// ```
 #[macro_export]
@@ -38,6 +42,9 @@ macro_rules! getopts_options {
     };
 
     (@with($o:ident)) => {};
+    (@with($o:ident) . $($t:tt)+) => {
+        $o.$($t)+;
+    };
     (@with($o:ident) $t1:tt $t2:tt $t3:tt $t4:tt $t5:tt $desc:tt; $($rest:tt)*) => {
         $crate::getopts_options!(@impl($o, $desc) $t1 $t2 $t3 $t4 $t5);
         $crate::getopts_options!(@with($o) $($rest)*);
@@ -164,5 +171,6 @@ fn test() {
         -S --fake-source-from=SRC   "...";
         -s --sep?=PATTERN           "...";
         -h --help*                  "...";
+        .parsing_style(getopts::ParsingStyle::StopAtFirstFree)
     };
 }
