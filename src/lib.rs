@@ -21,6 +21,7 @@ pub use getopts;
 ///     -f --file=FILE              "input from file";
 ///     -p --parse-config*=CONFIG   "parse config";
 ///     -h --help*                  "help messages";
+///        --help-long*             "long help messages";
 ///     .parsing_style(ParsingStyle::StopAtFirstFree)
 /// };
 /// ```
@@ -44,6 +45,18 @@ macro_rules! getopts_options {
     (@with($o:ident)) => {};
     (@with($o:ident) . $($t:tt)+) => {
         $o.$($t)+;
+    };
+    (@with($o:ident) $t1:tt $t2:tt $desc:tt; $($rest:tt)*) => {
+        $crate::getopts_options!(@impl($o, $desc) $t1 $t2);
+        $crate::getopts_options!(@with($o) $($rest)*);
+    };
+    (@with($o:ident) $t1:tt $t2:tt $t3:tt $desc:tt; $($rest:tt)*) => {
+        $crate::getopts_options!(@impl($o, $desc) $t1 $t2 $t3);
+        $crate::getopts_options!(@with($o) $($rest)*);
+    };
+    (@with($o:ident) $t1:tt $t2:tt $t3:tt $t4:tt $desc:tt; $($rest:tt)*) => {
+        $crate::getopts_options!(@impl($o, $desc) $t1 $t2 $t3 $t4);
+        $crate::getopts_options!(@with($o) $($rest)*);
     };
     (@with($o:ident) $t1:tt $t2:tt $t3:tt $t4:tt $t5:tt $desc:tt; $($rest:tt)*) => {
         $crate::getopts_options!(@impl($o, $desc) $t1 $t2 $t3 $t4 $t5);
@@ -160,17 +173,149 @@ macro_rules! getopts_options {
             ::core::stringify!($hint),
         );
     };
+
+
+    (@impl($o:ident, $desc:tt) -$short:ident) => {
+        $o.optflag(
+            ::core::stringify!($short),
+            "",
+            $desc,
+        );
+    };
+    (@impl($o:ident, $desc:tt) -$short:ident *) => {
+        $o.optflagmulti(
+            ::core::stringify!($short),
+            "",
+            $desc,
+        );
+    };
+    (@impl($o:ident, $desc:tt) -$short:ident = $hint:ident) => {
+        $o.optopt(
+            ::core::stringify!($short),
+            "",
+            $desc,
+            ::core::stringify!($hint),
+        );
+    };
+    (@impl($o:ident, $desc:tt) -$short:ident * = $hint:ident) => {
+        $o.optmulti(
+            ::core::stringify!($short),
+            "",
+            $desc,
+            ::core::stringify!($hint),
+        );
+    };
+    (@impl($o:ident, $desc:tt) -$short:ident *= $hint:ident) => {
+        $o.optmulti(
+            ::core::stringify!($short),
+            "",
+            $desc,
+            ::core::stringify!($hint),
+        );
+    };
+    (@impl($o:ident, $desc:tt) -$short:ident + = $hint:ident) => {
+        $o.reqopt(
+            ::core::stringify!($short),
+            "",
+            $desc,
+            ::core::stringify!($hint),
+        );
+    };
+    (@impl($o:ident, $desc:tt) -$short:ident += $hint:ident) => {
+        $o.reqopt(
+            ::core::stringify!($short),
+            "",
+            $desc,
+            ::core::stringify!($hint),
+        );
+    };
+    (@impl($o:ident, $desc:tt) -$short:ident ?= $hint:ident) => {
+        $o.optflagopt(
+            ::core::stringify!($short),
+            "",
+            $desc,
+            ::core::stringify!($hint),
+        );
+    };
+
+
+    (@impl($o:ident, $desc:tt) --$($long:ident)-+) => {
+        $o.optflag(
+            "",
+            $crate::getopts_options!(@long $($long)+),
+            $desc,
+        );
+    };
+    (@impl($o:ident, $desc:tt) --$($long:ident)-+ *) => {
+        $o.optflagmulti(
+            "",
+            $crate::getopts_options!(@long $($long)+),
+            $desc,
+        );
+    };
+    (@impl($o:ident, $desc:tt) --$($long:ident)-+ = $hint:ident) => {
+        $o.optopt(
+            "",
+            $crate::getopts_options!(@long $($long)+),
+            $desc,
+            ::core::stringify!($hint),
+        );
+    };
+    (@impl($o:ident, $desc:tt) --$($long:ident)-+ * = $hint:ident) => {
+        $o.optmulti(
+            "",
+            $crate::getopts_options!(@long $($long)+),
+            $desc,
+            ::core::stringify!($hint),
+        );
+    };
+    (@impl($o:ident, $desc:tt) --$($long:ident)-+ *= $hint:ident) => {
+        $o.optmulti(
+            "",
+            $crate::getopts_options!(@long $($long)+),
+            $desc,
+            ::core::stringify!($hint),
+        );
+    };
+    (@impl($o:ident, $desc:tt) --$($long:ident)-+ + = $hint:ident) => {
+        $o.reqopt(
+            "",
+            $crate::getopts_options!(@long $($long)+),
+            $desc,
+            ::core::stringify!($hint),
+        );
+    };
+    (@impl($o:ident, $desc:tt) --$($long:ident)-+ += $hint:ident) => {
+        $o.reqopt(
+            "",
+            $crate::getopts_options!(@long $($long)+),
+            $desc,
+            ::core::stringify!($hint),
+        );
+    };
+    (@impl($o:ident, $desc:tt) --$($long:ident)-+ ?= $hint:ident) => {
+        $o.optflagopt(
+            "",
+            $crate::getopts_options!(@long $($long)+),
+            $desc,
+            ::core::stringify!($hint),
+        );
+    };
 }
 
 #[test]
 fn test() {
-    getopts_options! {
+    let usage = getopts_options! {
         -c --center-rule            "...";
         -i --ignore*=NAME           "...";
         -I --ignore-partial*=NAME   "...";
         -S --fake-source-from=SRC   "...";
         -s --sep?=PATTERN           "...";
         -h --help*                  "...";
+        -m*                         "...";
+           --long                   "...";
+           --long-arg=A             "...";
         .parsing_style(getopts::ParsingStyle::StopAtFirstFree)
-    };
+    }.short_usage("prog");
+    assert_eq!(usage, "Usage: prog [-c] [-i NAME].. [-I NAME].. [-S SRC] [-s [PATTERN]] [-h].. [-m].. [--long] [--long-arg A]");
 }
