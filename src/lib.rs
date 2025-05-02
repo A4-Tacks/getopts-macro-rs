@@ -11,6 +11,7 @@ pub use getopts;
 /// - `?=` is has optional arg
 ///
 /// # Examples
+///
 /// ```
 /// use getopts_macro::{
 ///     getopts_options,

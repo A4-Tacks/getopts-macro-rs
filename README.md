@@ -12,3 +12,18 @@ let _options = getopts_options! {
     -V --version*       "...";
 };
 ```
+
+Expand to:
+
+```rust
+let _options = {
+    let mut options = getopts::Options::new();
+    options.optflag("z", "zero", "...");
+    options.optflagmulti("v", "verbose", "...");
+    options.optopt("T", "threads", "...", "NUM");
+    options.optmulti("i", "ignore", "...", "FILE");
+    options.optflagmulti("h", "help", "...");
+    options.optflagmulti("V", "version", "...");
+    options
+};
+```
