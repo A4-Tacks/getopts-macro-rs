@@ -111,22 +111,26 @@ macro_rules! getopts_options {
         $crate::getopts_options!(@impl($o, $desc) $t1 $t2 $t3 $t4 $t5 $t6 $t7 $t8 $t9 $t10 $t11 $t12 $t13 $t14 $t15 $t16 $t17);
         $crate::getopts_options!(@with($o) $($rest)*);
     };
+    (@with($o:ident) $t1:tt $t2:tt $t3:tt $t4:tt $t5:tt $t6:tt $t7:tt $t8:tt $t9:tt $t10:tt $t11:tt $t12:tt $t13:tt $t14:tt $t15:tt $t16:tt $t17:tt $t18:tt $desc:tt; $($rest:tt)*) => {
+        $crate::getopts_options!(@impl($o, $desc) $t1 $t2 $t3 $t4 $t5 $t6 $t7 $t8 $t9 $t10 $t11 $t12 $t13 $t14 $t15 $t16 $t17 $t18);
+        $crate::getopts_options!(@with($o) $($rest)*);
+    };
 
-    (@impl($o:ident, $desc:tt) -$short:ident --$($long:ident)-+) => {
+    (@impl($o:ident, $desc:tt) -$short:ident $(,)? --$($long:ident)-+) => {
         $o.optflag(
             ::core::stringify!($short),
             $crate::getopts_options!(@long $($long)+),
             $desc,
         );
     };
-    (@impl($o:ident, $desc:tt) -$short:ident --$($long:ident)-+ *) => {
+    (@impl($o:ident, $desc:tt) -$short:ident $(,)? --$($long:ident)-+ *) => {
         $o.optflagmulti(
             ::core::stringify!($short),
             $crate::getopts_options!(@long $($long)+),
             $desc,
         );
     };
-    (@impl($o:ident, $desc:tt) -$short:ident --$($long:ident)-+ = $hint:ident) => {
+    (@impl($o:ident, $desc:tt) -$short:ident $(,)? --$($long:ident)-+ = $hint:ident) => {
         $o.optopt(
             ::core::stringify!($short),
             $crate::getopts_options!(@long $($long)+),
@@ -134,7 +138,7 @@ macro_rules! getopts_options {
             ::core::stringify!($hint),
         );
     };
-    (@impl($o:ident, $desc:tt) -$short:ident --$($long:ident)-+ * = $hint:ident) => {
+    (@impl($o:ident, $desc:tt) -$short:ident $(,)? --$($long:ident)-+ * = $hint:ident) => {
         $o.optmulti(
             ::core::stringify!($short),
             $crate::getopts_options!(@long $($long)+),
@@ -142,7 +146,7 @@ macro_rules! getopts_options {
             ::core::stringify!($hint),
         );
     };
-    (@impl($o:ident, $desc:tt) -$short:ident --$($long:ident)-+ *= $hint:ident) => {
+    (@impl($o:ident, $desc:tt) -$short:ident $(,)? --$($long:ident)-+ *= $hint:ident) => {
         $o.optmulti(
             ::core::stringify!($short),
             $crate::getopts_options!(@long $($long)+),
@@ -150,7 +154,7 @@ macro_rules! getopts_options {
             ::core::stringify!($hint),
         );
     };
-    (@impl($o:ident, $desc:tt) -$short:ident --$($long:ident)-+ + = $hint:ident) => {
+    (@impl($o:ident, $desc:tt) -$short:ident $(,)? --$($long:ident)-+ + = $hint:ident) => {
         $o.reqopt(
             ::core::stringify!($short),
             $crate::getopts_options!(@long $($long)+),
@@ -158,7 +162,7 @@ macro_rules! getopts_options {
             ::core::stringify!($hint),
         );
     };
-    (@impl($o:ident, $desc:tt) -$short:ident --$($long:ident)-+ += $hint:ident) => {
+    (@impl($o:ident, $desc:tt) -$short:ident $(,)? --$($long:ident)-+ += $hint:ident) => {
         $o.reqopt(
             ::core::stringify!($short),
             $crate::getopts_options!(@long $($long)+),
@@ -166,7 +170,7 @@ macro_rules! getopts_options {
             ::core::stringify!($hint),
         );
     };
-    (@impl($o:ident, $desc:tt) -$short:ident --$($long:ident)-+ ?= $hint:ident) => {
+    (@impl($o:ident, $desc:tt) -$short:ident $(,)? --$($long:ident)-+ ?= $hint:ident) => {
         $o.optflagopt(
             ::core::stringify!($short),
             $crate::getopts_options!(@long $($long)+),
@@ -312,7 +316,7 @@ fn test() {
         -I --ignore-partial*=NAME   "...";
         -S --fake-source-from=SRC   "...";
         -s --sep?=PATTERN           "...";
-        -h --help*                  "...";
+        -h,--help*                  "...";
         -m*                         "...";
            --long                   "...";
            --long-arg=A             "...";
