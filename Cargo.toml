@@ -1,11 +1,11 @@
 [package]
 name = "getopts-macro"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 
 authors = ["A4-Tacks <wdsjxhno1001@163.com>"]
 repository = "https://github.com/A4-Tacks/getopts-macro-rs"
-keywords = ["no-std", "getopts"]
+keywords = ["no-std", "getopts", "arg", "builder"]
 description = "Using macros to concisely define the getopts"
 
 license = "MIT"

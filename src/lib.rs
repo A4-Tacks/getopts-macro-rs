@@ -2,13 +2,73 @@
 #![doc = include_str!("../README.md")]
 
 pub use getopts;
+use getopts::{HasArg, Occur};
+
+/// [`getopts_options`] `*?` and `+?` support
+pub trait GetOptsExt {
+    fn optflagreqopt(
+        &mut self,
+        short_name: &str,
+        long_name: &str,
+        desc: &str,
+        hint: &str,
+    ) -> &mut Self;
+    fn optflagmultiopt(
+        &mut self,
+        short_name: &str,
+        long_name: &str,
+        desc: &str,
+        hint: &str,
+    ) -> &mut Self;
+}
+impl GetOptsExt for getopts::Options {
+    fn optflagreqopt(
+        &mut self,
+        short_name: &str,
+        long_name: &str,
+        desc: &str,
+        hint: &str,
+    ) -> &mut Self {
+        self.opt(short_name, long_name, desc, hint, HasArg::Maybe, Occur::Req)
+    }
+
+    fn optflagmultiopt(
+        &mut self,
+        short_name: &str,
+        long_name: &str,
+        desc: &str,
+        hint: &str,
+    ) -> &mut Self {
+        self.opt(short_name, long_name, desc, hint, HasArg::Maybe, Occur::Multi)
+    }
+}
 
 /// Quick create [`getopts::Options`]
 ///
+/// # Syntax
+///
+/// `[...]` is optional syntax
+///
+/// *Occur* (default optional):
+///
 /// - `*` is require multi
 /// - `+` is require one
+///
+/// *HasArg* (default no arg):
+///
 /// - `=` is has arg
 /// - `?=` is has optional arg
+///
+/// *Option*:
+///
+/// - `-` *ident*
+/// - `--` *ident* \*(`-` *ident*)
+/// - `-` *ident* \[`,`] `--` *ident* \*(`-` *ident*)
+///
+/// *Desc*: *any-token*
+/// -x, --y;
+///
+/// *Syntax*: *Option* \[*Occur*] \[*HasArg* *Desc*] *Desc* `;` \[*Syntax*]
 ///
 /// # Examples
 ///
@@ -178,6 +238,24 @@ macro_rules! getopts_options {
             ::core::stringify!($hint),
         );
     };
+    (@impl($o:ident, $desc:tt) -$short:ident $(,)? --$($long:ident)-+ *?= $hint:ident) => {
+        $crate::GetOptsExt::optflagmultiopt(
+            &mut $o,
+            ::core::stringify!($short),
+            $crate::getopts_options!(@long $($long)+),
+            $desc,
+            ::core::stringify!($hint),
+        )
+    };
+    (@impl($o:ident, $desc:tt) -$short:ident $(,)? --$($long:ident)-+ +?= $hint:ident) => {
+        $crate::GetOptsExt::optflagreqopt(
+            &mut $o,
+            ::core::stringify!($short),
+            $crate::getopts_options!(@long $($long)+),
+            $desc,
+            ::core::stringify!($hint),
+        )
+    };
 
 
     (@impl($o:ident, $desc:tt) -$short:ident) => {
@@ -241,6 +319,24 @@ macro_rules! getopts_options {
             $desc,
             ::core::stringify!($hint),
         );
+    };
+    (@impl($o:ident, $desc:tt) -$short:ident *?= $hint:ident) => {
+        $crate::GetOptsExt::optflagmultiopt(
+            &mut $o,
+            ::core::stringify!($short),
+            "",
+            $desc,
+            ::core::stringify!($hint),
+        )
+    };
+    (@impl($o:ident, $desc:tt) -$short:ident +?= $hint:ident) => {
+        $crate::GetOptsExt::optflagreqopt(
+            &mut $o,
+            ::core::stringify!($short),
+            "",
+            $desc,
+            ::core::stringify!($hint),
+        )
     };
 
 
@@ -306,6 +402,24 @@ macro_rules! getopts_options {
             ::core::stringify!($hint),
         );
     };
+    (@impl($o:ident, $desc:tt) --$($long:ident)-+ *?= $hint:ident) => {
+        $crate::GetOptsExt::optflagmultiopt(
+            &mut $o,
+            "",
+            $crate::getopts_options!(@long $($long)+),
+            $desc,
+            ::core::stringify!($hint),
+        )
+    };
+    (@impl($o:ident, $desc:tt) --$($long:ident)-+ +?= $hint:ident) => {
+        $crate::GetOptsExt::optflagreqopt(
+            &mut $o,
+            "",
+            $crate::getopts_options!(@long $($long)+),
+            $desc,
+            ::core::stringify!($hint),
+        )
+    };
 }
 
 #[test]
@@ -316,11 +430,13 @@ fn test() {
         -I --ignore-partial*=NAME   "...";
         -S --fake-source-from=SRC   "...";
         -s --sep?=PATTERN           "...";
+        -k --keep*?=PATTERN         "...";
         -h,--help*                  "...";
         -m*                         "...";
            --long                   "...";
            --long-arg=A             "...";
+        -j+=J                       "...";
         .parsing_style(getopts::ParsingStyle::StopAtFirstFree)
     }.short_usage("prog");
-    assert_eq!(usage, "Usage: prog [-c] [-i NAME].. [-I NAME].. [-S SRC] [-s [PATTERN]] [-h].. [-m].. [--long] [--long-arg A]");
+    assert_eq!(usage, "Usage: prog [-c] [-i NAME].. [-I NAME].. [-S SRC] [-s [PATTERN]] [-k [PATTERN]].. [-h].. [-m].. [--long] [--long-arg A] -j J");
 }
