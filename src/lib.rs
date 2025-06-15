@@ -66,7 +66,6 @@ impl GetOptsExt for getopts::Options {
 /// - `-` *ident* \[`,`] `--` *ident* \*(`-` *ident*)
 ///
 /// *Desc*: *any-token*
-/// -x, --y;
 ///
 /// *Syntax*: *Option* \[*Occur*] \[*HasArg* *Desc*] *Desc* `;` \[*Syntax*]
 ///

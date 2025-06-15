@@ -1,6 +1,6 @@
 [package]
 name = "getopts-macro"
-version = "0.1.6"
+version = "0.1.7"
 edition = "2021"
 
 authors = ["A4-Tacks <wdsjxhno1001@163.com>"]
