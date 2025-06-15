@@ -1,4 +1,4 @@
-Using macros to concisely define the getopts
+Use macros to cleanly define getopts options
 
 ```rust
 use getopts_macro::getopts_options;
