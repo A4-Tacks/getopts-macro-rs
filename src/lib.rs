@@ -85,6 +85,8 @@ impl GetOptsExt for getopts::Options {
 ///     .parsing_style(ParsingStyle::StopAtFirstFree)
 /// };
 /// ```
+///
+/// **NOTE**: Expressions within parentheses, e.g `-h   (text.help);`
 #[macro_export]
 macro_rules! getopts_options {
     (-$($t:tt)*) => {{
