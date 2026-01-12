@@ -1,5 +1,6 @@
-#![no_std]
+#![cfg_attr(not(feature = "std"), no_std)]
 #![doc = include_str!("../README.md")]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 pub use getopts;
 use getopts::{HasArg, Occur};
@@ -421,6 +422,63 @@ macro_rules! getopts_options {
             ::core::stringify!($hint),
         )
     };
+}
+
+
+/// Simple parsing and handling of `--help`
+///
+/// When the arguments is incorrect, with 2 exit code.
+///
+/// # Examples
+///
+/// ```
+/// # fn fake_main() {
+/// use getopts_macro::{getopts_options, simple_parse};
+///
+/// let options = getopts_options! {
+///     -h, --help          "show help message";
+/// };
+/// let matches = simple_parse(&options, "", 1, "<FILE..>");
+/// println!("files: {:?}", matches.free)
+/// # }
+/// ```
+#[cfg(feature = "std")]
+#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
+#[track_caller]
+pub fn simple_parse(
+    options: &getopts::Options,
+    prog_desc: &str,
+    min_free: usize,
+    free_desc: &str,
+) -> getopts::Matches {
+    let mut args = std::env::args();
+    let prog_name = args.next().unwrap_or_else(|| "<unknown>".to_owned());
+    let matches = match options.parse(args) {
+        Ok(it) => it,
+        Err(e) => {
+            eprintln!("{prog_name}: {e}");
+            std::process::exit(2);
+        },
+    };
+
+    debug_assert!(matches.opt_defined("help"));
+    if matches.opt_present("help") {
+        let desc = if prog_desc.is_empty() { "" } else { &format!("\n{prog_desc}") };
+        let free_desc = if free_desc.is_empty() { "" } else { &format!(" {free_desc}") };
+
+        let brief = format!("Usage: {prog_name} [Options]{free_desc}{desc}");
+        let usage = options.usage(&brief);
+        println!("{}", usage.trim_end());
+        std::process::exit(0);
+    }
+
+    let found = matches.free.len();
+    if found < min_free {
+        eprintln!("{prog_name}: missing argument, requires {min_free} arguments, provide {found}");
+        std::process::exit(2);
+    }
+
+    matches
 }
 
 #[test]

@@ -12,5 +12,8 @@ description = "Use macros to cleanly define getopts options"
 license = "MIT"
 readme = "README.md"
 
+[features]
+std = []
+
 [dependencies]
 getopts = "0.2.21"
