@@ -451,7 +451,7 @@ pub fn simple_parse(
     min_free: usize,
     free_desc: &str,
 ) -> getopts::Matches {
-    let mut args = std::env::args();
+    let mut args = std::env::args_os();
     let prog_name = args.next().unwrap_or_else(|| "<unknown>".to_owned());
     let matches = match options.parse(args) {
         Ok(it) => it,
