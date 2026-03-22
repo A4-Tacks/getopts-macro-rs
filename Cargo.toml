@@ -1,6 +1,6 @@
 [package]
 name = "getopts-macro"
-version = "0.1.11"
+version = "0.1.12"
 edition = "2021"
 
 authors = ["A4-Tacks <wdsjxhno1001@163.com>"]
@@ -13,7 +13,9 @@ license = "MIT"
 readme = "README.md"
 
 [features]
+default = ["unicode"]
 std = []
+unicode = ["getopts/unicode"]
 
 [dependencies]
-getopts = "0.2.21"
+getopts = { version = "0.2.24", default-features = false }
