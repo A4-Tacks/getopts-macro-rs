@@ -1,0 +1,28 @@
+name: Rust test
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - features: --all-features
+          - features: --no-default-features
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo doc    ${{ matrix.features }}
+      - run: cargo test   ${{ matrix.features }} --no-fail-fast
+      - run: cargo clippy ${{ matrix.features }} -- -D warnings
+      - run: rm -v Cargo.lock
+      - run: cargo doc    ${{ matrix.features }}
+      - run: cargo test   ${{ matrix.features }} --no-fail-fast
+      - run: cargo clippy ${{ matrix.features }} -- -D warnings
