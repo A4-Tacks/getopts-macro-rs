@@ -79,10 +79,10 @@ impl GetOptsExt for getopts::Options {
 /// };
 ///
 /// let _options = getopts_options! {
-///     -f --file=FILE              "input from file";
-///     -p --parse-config*=CONFIG   "parse config";
-///     -h --help*                  "help messages";
-///        --help-long*             "long help messages";
+///     -f, --file=FILE              "input from file";
+///     -p, --parse-config*=CONFIG   "parse config";
+///     -h, --help*                  "help messages";
+///         --help-long*             "long help messages";
 ///     .parsing_style(ParsingStyle::StopAtFirstFree)
 /// };
 /// ```
